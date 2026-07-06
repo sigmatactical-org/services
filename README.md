@@ -42,4 +42,4 @@ docker build -f Dockerfile build/image -t sigma-services:local
 
 ## Platform
 
-Kubernetes manifests live in [platform](https://github.com/sigmatactical-org/platform) under `services/services/`. Dev ingress: `http://services.sigma.localtest.me:30080/`.
+Kubernetes manifests live in [platform](https://github.com/sigmatactical-org/platform) under `it/platform/services/services/`. Dev ingress: `http://services.sigma.localtest.me:30080/`.
