@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Services — Sigma Tactical Group{% endblock %}
+
+{% block brand %}Sigma Services{% endblock %}
+
+{% block main_class %}services-main{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1>Professional services</h1>
+  <p class="text-secondary mb-4">Engineering support beyond our product catalog — maintenance, consulting, and research.</p>
+
+  <div class="row g-4">
+    {% for service in services %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card product-card h-100">
+        <div class="card-body d-flex flex-column">
+          <h2 class="h5 card-title">{{ service.title }}</h2>
+          <p class="card-text text-secondary flex-grow-1">{{ service.summary }}</p>
+          <a class="text-decoration-none product-back mt-2" href="/service/{{ service.slug }}">Learn more &rarr;</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p class="mt-4 mb-0">
+    <a class="btn btn-primary" href="{{ contact_us_url }}?return_url=/">Contact us</a>
+  </p>
+</div>
+{% endblock %}

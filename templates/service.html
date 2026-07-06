@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — Sigma Services{% endblock %}
+
+{% block brand %}Sigma Services{% endblock %}
+
+{% block main_class %}services-main service-page{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <p class="mb-3"><a class="text-decoration-none product-back" href="/">&larr; All services</a></p>
+
+  <h1 class="product-title mb-4">{{ title }}</h1>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="spec-markdown">
+        {{ body|safe }}
+      </div>
+      <p class="mt-4 mb-0">
+        <a class="btn btn-primary" href="{{ contact_us_url }}?return_url=/service/{{ slug }}">Discuss this service</a>
+      </p>
+    </div>
+
+    <aside class="col-lg-4">
+      <nav class="card product-card" aria-label="Other services">
+        <div class="card-body">
+          <h2 class="h6 text-secondary text-uppercase mb-3">Other services</h2>
+          <ul class="list-unstyled mb-0">
+            {% for entry in services %}
+            <li class="mb-2">
+              {% if entry.slug == slug %}
+              <span class="fw-semibold">{{ entry.title }}</span>
+              {% else %}
+              <a href="/service/{{ entry.slug }}">{{ entry.title }}</a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </nav>
+    </aside>
+  </div>
+</div>
+{% endblock %}
