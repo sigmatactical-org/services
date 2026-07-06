@@ -49,10 +49,7 @@ fn load_services() -> BTreeMap<String, ServiceEntry> {
             .get("title")
             .cloned()
             .unwrap_or_else(|| slug.replace('-', " "));
-        let summary = meta
-            .get("summary")
-            .cloned()
-            .unwrap_or_default();
+        let summary = meta.get("summary").cloned().unwrap_or_default();
         let order = meta
             .get("order")
             .and_then(|s| s.parse().ok())
@@ -91,7 +88,10 @@ fn split_front_matter(source: &str) -> (BTreeMap<String, String>, &str) {
 
 fn markdown_to_html(markdown: &str) -> String {
     let mut html_out = String::new();
-    let parser = Parser::new_ext(markdown, Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH);
+    let parser = Parser::new_ext(
+        markdown,
+        Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH,
+    );
     html::push_html(&mut html_out, parser);
     html_out
 }
