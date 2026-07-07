@@ -4,6 +4,11 @@ use crate::config;
 use crate::content::{ServiceEntry, sorted_entries};
 use sigma_identity_nav::{AppSiteNav, render_app_site_nav};
 use sigma_theme::copyright_years;
+use sigma_theme::nav::{Breadcrumb, SiteHeader};
+
+fn page_header(brand: &str) -> SiteHeader {
+    SiteHeader::new(brand)
+}
 
 fn site_nav(return_path: &str) -> Result<String, askama::Error> {
     render_app_site_nav(&AppSiteNav {
@@ -23,6 +28,7 @@ fn site_nav(return_path: &str) -> Result<String, askama::Error> {
 struct IndexTemplate {
     services: Vec<ServiceCard>,
     contact_us_url: String,
+    site_header: SiteHeader,
     site_nav: String,
     copyright_years: String,
 }
@@ -35,6 +41,7 @@ struct ServiceTemplate {
     body: String,
     services: Vec<NavEntry>,
     contact_us_url: String,
+    site_header: SiteHeader,
     site_nav: String,
     copyright_years: String,
 }
@@ -80,6 +87,7 @@ pub fn render_index_html() -> Result<String, askama::Error> {
     IndexTemplate {
         services: service_cards(),
         contact_us_url: config::contact_us_url(),
+        site_header: page_header("Sigma Services"),
         site_nav: site_nav("/")?,
         copyright_years: copyright_years(),
     }
@@ -96,6 +104,9 @@ pub fn render_service_html(service: &ServiceEntry) -> Result<String, askama::Err
         body: service.body_html.clone(),
         services: nav_entries(),
         contact_us_url: config::contact_us_url(),
+        site_header: page_header("Sigma Services")
+            .with_breadcrumb(Breadcrumb::link("/", "Services"))
+            .with_breadcrumb(Breadcrumb::current(service.title.clone())),
         site_nav: site_nav(&format!("/service/{}", service.slug))?,
         copyright_years: copyright_years(),
     }
