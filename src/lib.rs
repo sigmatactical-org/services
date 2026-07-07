@@ -44,6 +44,15 @@ fn service_page() -> impl Filter<Extract = (impl Reply,), Error = Rejection> + C
         })
 }
 
+fn content_security_policy() -> String {
+    let identity_origin = config::identity_public_origin();
+    format!(
+        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; \
+         img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; \
+         font-src 'self'; connect-src 'self' {identity_origin}; form-action 'self'"
+    )
+}
+
 /// Site routes: index, `/service/{slug}`, `/up`, theme static assets, error recovery.
 pub fn routes() -> impl Filter<Extract = (impl Reply,), Error = Infallible> + Clone + Send + 'static
 {
@@ -58,12 +67,7 @@ pub fn routes() -> impl Filter<Extract = (impl Reply,), Error = Infallible> + Cl
         .or(sigma_theme::warp::static_files())
         .or(sigma_theme::warp::favicon())
         .recover(sigma_theme::warp::handle_rejection)
-        .with(header(
-            "content-security-policy",
-            "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; \
-             img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; \
-             font-src 'self'; connect-src 'self'; form-action 'self'",
-        ))
+        .with(header("content-security-policy", content_security_policy()))
         .with(header("x-content-type-options", "nosniff"))
         .with(header("x-frame-options", "DENY"))
         .with(header("referrer-policy", "strict-origin-when-cross-origin"))
@@ -85,6 +89,7 @@ mod tests {
         let body = std::str::from_utf8(res.body()).unwrap();
         assert!(body.contains("Vehicle maintenance"));
         assert!(body.contains("Consulting"));
+        assert!(body.contains("aria-label=\"Cart\""));
     }
 
     #[tokio::test]
