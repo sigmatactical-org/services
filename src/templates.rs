@@ -2,9 +2,9 @@ use askama::Template;
 
 use crate::config;
 use crate::content::{ServiceEntry, sorted_entries};
-use sigma_theme::site_nav::{AppSiteNav, render_app_site_nav};
 use sigma_theme::copyright_years;
 use sigma_theme::nav::{Breadcrumb, SiteHeader};
+use sigma_theme::site_nav::{AppSiteNav, render_app_site_nav};
 
 fn page_header(brand: &str) -> SiteHeader {
     SiteHeader::new(brand)
