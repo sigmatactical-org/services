@@ -1675,7 +1675,6 @@ dependencies = [
  "askama",
  "include_dir",
  "pulldown-cmark",
- "sigma-identity-nav",
  "sigma-pg",
  "sigma-theme",
  "tokio",
