@@ -44,11 +44,11 @@ docker build -f Dockerfile build/image -t sigma-services:local
 
 Kubernetes manifests live in [platform](https://github.com/sigmatactical-org/platform) under `it/platform/services/services/`. Dev ingress: `http://services.sigma.localtest.me:30080/`.
 
-## Copyright & branding
+## Brand & artwork
 
 © Sigma Tactical Group. **All rights reserved.**
 
-The **Sigma Tactical Group** name, logos, wordmarks, and site visual identity are **proprietary**. See [sigma-theme BRANDING.md](https://github.com/sigmatactical-org/sigma-theme/blob/main/BRANDING.md).
+The Sigma Tactical Group name, logos, marks, artwork, and visual identity are **proprietary**. They are not covered by this repository's source-code license. See [BRANDING.md](BRANDING.md).
 
 ## License
 
