@@ -90,6 +90,11 @@ mod tests {
         assert!(body.contains("Vehicle maintenance"));
         assert!(body.contains("Consulting"));
         assert!(body.contains("aria-label=\"Cart\""));
+        // The body "Contact us" link's return_url must be an absolute URL matching
+        // what the allowlist expects, not a bare path (regression: bare "/" 400s).
+        assert!(body.contains(">Contact us</a>"));
+        assert!(body.contains("/contact?return_url=http"));
+        assert!(!body.contains("?return_url=/\""));
     }
 
     #[tokio::test]
@@ -102,6 +107,8 @@ mod tests {
         assert_eq!(res.status(), 200);
         let body = std::str::from_utf8(res.body()).unwrap();
         assert!(body.contains("Consulting"));
+        assert!(body.contains("/contact?return_url=http"));
+        assert!(!body.contains("?return_url=/service/consulting\""));
     }
 
     #[tokio::test]

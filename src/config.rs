@@ -51,9 +51,3 @@ pub fn contact_public_base_url() -> String {
         .map(|s| normalize_base_url(&s))
         .unwrap_or_else(|| "http://127.0.0.1:8083/".to_string())
 }
-
-#[must_use]
-pub fn contact_us_url() -> String {
-    let base = contact_public_base_url();
-    format!("{}contact", base.trim_end_matches('/'))
-}
