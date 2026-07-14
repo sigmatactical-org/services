@@ -1,5 +1,7 @@
 //! Sigma Services: professional offerings (maintenance, consulting, R&D).
 
+#![forbid(unsafe_code)]
+
 mod config;
 mod content;
 mod templates;
