@@ -1,5 +1,8 @@
 # sigma-services
 
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![MSRV](https://img.shields.io/badge/MSRV-1.97.0-blue.svg)](https://www.rust-lang.org)
+
 Public site for Sigma Tactical Group **professional services**: vehicle maintenance, consulting, and research & development.
 
 Repository: https://github.com/sigmatactical-org/services
