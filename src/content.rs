@@ -19,16 +19,19 @@ pub struct ServiceEntry {
 
 static SERVICES: OnceLock<BTreeMap<String, ServiceEntry>> = OnceLock::new();
 
+/// The static service registry, keyed by slug.
 pub fn services() -> &'static BTreeMap<String, ServiceEntry> {
     SERVICES.get_or_init(load_services)
 }
 
+/// Registry entries in display order.
 pub fn sorted_entries() -> Vec<&'static ServiceEntry> {
     let mut entries: Vec<_> = services().values().collect();
     entries.sort_by(|a, b| a.order.cmp(&b.order).then_with(|| a.title.cmp(&b.title)));
     entries
 }
 
+/// Look up a service by slug.
 pub fn get(slug: &str) -> Option<&'static ServiceEntry> {
     services().get(slug)
 }

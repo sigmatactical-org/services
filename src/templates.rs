@@ -1,3 +1,12 @@
+mod index_template;
+mod nav_entry;
+mod service_card;
+mod service_template;
+pub(crate) use index_template::IndexTemplate;
+pub(crate) use nav_entry::NavEntry;
+pub(crate) use service_card::ServiceCard;
+pub(crate) use service_template::ServiceTemplate;
+
 use askama::Template;
 
 use crate::config;
@@ -22,42 +31,6 @@ fn site_nav(return_path: &str) -> Result<String, askama::Error> {
         show_contact_us: false,
         leading_html: "",
     })
-}
-
-#[derive(Template)]
-#[template(path = "index.html")]
-struct IndexTemplate {
-    services: Vec<ServiceCard>,
-    contact_us_url: String,
-    site_header: SiteHeader,
-    site_nav: String,
-    copyright_years: String,
-}
-
-#[derive(Template)]
-#[template(path = "service.html")]
-struct ServiceTemplate {
-    slug: String,
-    title: String,
-    body: String,
-    services: Vec<NavEntry>,
-    contact_us_url: String,
-    site_header: SiteHeader,
-    site_nav: String,
-    copyright_years: String,
-}
-
-#[derive(Clone)]
-struct ServiceCard {
-    slug: String,
-    title: String,
-    summary: String,
-}
-
-#[derive(Clone)]
-struct NavEntry {
-    slug: String,
-    title: String,
 }
 
 fn nav_entries() -> Vec<NavEntry> {
