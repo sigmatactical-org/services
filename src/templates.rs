@@ -12,11 +12,11 @@ use askama::Template;
 use crate::config;
 use crate::content::{ServiceEntry, sorted_entries};
 use sigma_theme::copyright_years;
-use sigma_theme::nav::{Breadcrumb, SiteHeader};
+use sigma_theme::nav::{Breadcrumb, SiteHeader, site_menu};
 use sigma_theme::site_nav::{AppSiteNav, contact_us_url, render_app_site_nav};
 
-fn page_header(brand: &str) -> SiteHeader {
-    SiteHeader::new(brand)
+fn page_header() -> SiteHeader {
+    SiteHeader::new().with_menu(site_menu(None))
 }
 
 fn site_nav(return_path: &str) -> Result<String, askama::Error> {
@@ -65,7 +65,7 @@ pub fn render_index_html() -> Result<String, askama::Error> {
             &config::public_base_url(),
             "/",
         ),
-        site_header: page_header("Sigma Services"),
+        site_header: page_header(),
         site_nav: site_nav("/")?,
         copyright_years: copyright_years(),
     }
@@ -87,7 +87,7 @@ pub fn render_service_html(service: &ServiceEntry) -> Result<String, askama::Err
             &config::public_base_url(),
             &return_path,
         ),
-        site_header: page_header("Sigma Services")
+        site_header: page_header()
             .with_breadcrumb(Breadcrumb::link("/", "Services"))
             .with_breadcrumb(Breadcrumb::current(service.title.clone())),
         site_nav: site_nav(&return_path)?,
