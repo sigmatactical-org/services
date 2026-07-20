@@ -7,72 +7,48 @@ mod content;
 mod templates;
 
 use std::convert::Infallible;
+use std::sync::OnceLock;
 
-use warp::Filter;
-use warp::{Rejection, Reply};
-
-pub use content::{ServiceEntry, get, sorted_entries};
-pub use sigma_theme::copyright_years;
-
-/// Resolve listen address from **`PORT`** (default **8080**).
-#[must_use]
-pub fn listen_socket_addr_from_env() -> std::net::SocketAddr {
-    use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-    let port: u16 = std::env::var("PORT")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(8080);
-    SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port)
-}
+use sigma_theme::warp::TemplateError;
+use warp::{Filter, Rejection, Reply};
 
 fn index_page() -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
-    warp::path::end().and(warp::get()).and_then(|| async {
-        templates::render_index_html()
-            .map(warp::reply::html)
-            .map_err(|_| warp::reject::not_found())
-    })
+    static INDEX_HTML: OnceLock<String> = OnceLock::new();
+    sigma_theme::warp::cached_page(&INDEX_HTML, templates::render_index_html)
 }
 
 fn service_page() -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     warp::path!("service" / String)
         .and(warp::get())
         .and_then(|slug: String| async move {
-            let Some(service) = get(&slug) else {
+            let Some(service) = content::get(&slug) else {
                 return Err(warp::reject::not_found());
             };
             templates::render_service_html(service)
                 .map(warp::reply::html)
-                .map_err(|_| warp::reject::not_found())
+                .map_err(|_| warp::reject::custom(TemplateError))
         })
 }
 
-fn content_security_policy() -> String {
-    let identity_origin = config::identity_public_origin();
-    format!(
-        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; \
-         img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; \
-         font-src 'self'; connect-src 'self' {identity_origin}; form-action 'self'"
-    )
+/// Identity BFF origin for CSP `connect-src`, resolved once per process
+/// (the theme's `security_headers` requires a `'static` borrow).
+fn identity_origin() -> &'static str {
+    static ORIGIN: OnceLock<String> = OnceLock::new();
+    ORIGIN.get_or_init(config::identity_public_origin)
 }
 
-/// Site routes: index, `/service/{slug}`, `/up`, theme static assets, error recovery.
-pub fn routes() -> impl Filter<Extract = (impl Reply,), Error = Infallible> + Clone + Send + 'static
-{
-    use warp::reply::with::header;
-
-    warp::path("up")
-        .and(warp::get())
-        .map(|| warp::reply::with_status("up", warp::http::StatusCode::OK))
-        .or(sigma_pg::health::warp::health_routes("services", None))
-        .or(index_page())
-        .or(service_page())
-        .or(sigma_theme::warp::static_files())
-        .or(sigma_theme::warp::favicon())
-        .recover(sigma_theme::warp::handle_rejection)
-        .with(header("content-security-policy", content_security_policy()))
-        .with(header("x-content-type-options", "nosniff"))
-        .with(header("x-frame-options", "DENY"))
-        .with(header("referrer-policy", "strict-origin-when-cross-origin"))
+/// Site routes: index, `/service/{slug}`, `/up`, sigma-pg health routes,
+/// theme static assets, and themed error recovery — wrapped in the shared
+/// security header set.
+pub fn routes()
+-> impl Filter<Extract = (impl Reply,), Error = Infallible> + Clone + Send + Sync + 'static {
+    sigma_theme::warp::security_headers(
+        sigma_theme::warp::site_routes(
+            index_page().or(service_page()),
+            sigma_pg::health::warp::health_routes("services", None),
+        ),
+        identity_origin(),
+    )
 }
 
 #[cfg(test)]

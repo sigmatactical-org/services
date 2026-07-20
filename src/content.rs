@@ -1,21 +1,15 @@
 //! Load service descriptions from the embedded `content/` tree.
 
+mod service_entry;
+pub use service_entry::ServiceEntry;
+
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
 use include_dir::{Dir, include_dir};
-use pulldown_cmark::{Options, Parser, html};
+use sigma_theme::content::{markdown_to_html, split_front_matter};
 
 static CONTENT: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/content");
-
-#[derive(Debug, Clone)]
-pub struct ServiceEntry {
-    pub slug: String,
-    pub title: String,
-    pub summary: String,
-    pub order: i32,
-    pub body_html: String,
-}
 
 static SERVICES: OnceLock<BTreeMap<String, ServiceEntry>> = OnceLock::new();
 
@@ -70,31 +64,4 @@ fn load_services() -> BTreeMap<String, ServiceEntry> {
         );
     }
     map
-}
-
-fn split_front_matter(source: &str) -> (BTreeMap<String, String>, &str) {
-    let mut meta = BTreeMap::new();
-    let Some(rest) = source.strip_prefix("---") else {
-        return (meta, source);
-    };
-    let Some((header, body)) = rest.split_once("\n---") else {
-        return (meta, source);
-    };
-    let body = body.trim_start_matches('\n');
-    for line in header.lines() {
-        if let Some((key, value)) = line.split_once(':') {
-            meta.insert(key.trim().to_string(), value.trim().to_string());
-        }
-    }
-    (meta, body)
-}
-
-fn markdown_to_html(markdown: &str) -> String {
-    let mut html_out = String::new();
-    let parser = Parser::new_ext(
-        markdown,
-        Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH,
-    );
-    html::push_html(&mut html_out, parser);
-    html_out
 }

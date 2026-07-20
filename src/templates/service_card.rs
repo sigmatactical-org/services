@@ -1,11 +1,8 @@
 //! [`ServiceCard`].
 
-#[allow(unused_imports)]
-use super::*;
-
-#[derive(Clone)]
+/// Landing-page card for one service, borrowing from the static registry.
 pub(crate) struct ServiceCard {
-    pub(crate) slug: String,
-    pub(crate) title: String,
-    pub(crate) summary: String,
+    pub(crate) slug: &'static str,
+    pub(crate) title: &'static str,
+    pub(crate) summary: &'static str,
 }
