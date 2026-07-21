@@ -36,32 +36,31 @@ fn load_services() -> BTreeMap<String, ServiceEntry> {
         let Some(path) = file.path().to_str() else {
             continue;
         };
-        if !path.ends_with(".md") {
+        let Some(slug) = path.strip_suffix(".md") else {
             continue;
-        }
-        let slug = path.trim_end_matches(".md").to_string();
-        let source = file.contents_utf8().unwrap_or("");
-        let (meta, markdown) = split_front_matter(source);
-        let title = meta
-            .get("title")
-            .cloned()
-            .unwrap_or_else(|| slug.replace('-', " "));
-        let summary = meta.get("summary").cloned().unwrap_or_default();
-        let order = meta
-            .get("order")
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(100);
-        let body_html = markdown_to_html(markdown);
-        map.insert(
-            slug.clone(),
-            ServiceEntry {
-                slug,
-                title,
-                summary,
-                order,
-                body_html,
-            },
-        );
+        };
+        let entry = parse_service(slug, file.contents_utf8().unwrap_or(""));
+        map.insert(entry.slug.clone(), entry);
     }
     map
+}
+
+fn parse_service(slug: &str, source: &str) -> ServiceEntry {
+    let (meta, markdown) = split_front_matter(source);
+    let title = meta
+        .get("title")
+        .cloned()
+        .unwrap_or_else(|| slug.replace('-', " "));
+    let summary = meta.get("summary").cloned().unwrap_or_default();
+    let order = meta
+        .get("order")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(100);
+    ServiceEntry {
+        slug: slug.to_string(),
+        title,
+        summary,
+        order,
+        body_html: markdown_to_html(markdown),
+    }
 }
