@@ -8,7 +8,7 @@ Public site for Sigma Tactical Group **professional services**: vehicle maintena
 
 Repository: https://github.com/sigmatactical-org/services
 
-## Content
+## Features
 
 Service pages are Markdown files under `content/` with optional YAML front matter:
 
@@ -32,7 +32,7 @@ Pages are embedded at compile time and served at `/service/{slug}`.
 | `SERVICES_CART_PUBLIC_URL` | Cart service base URL for navbar links (default `http://127.0.0.1:8084/`) |
 | `SERVICES_CONTACT_PUBLIC_URL` | Contact service base URL for inquiry buttons (default `http://127.0.0.1:8083/`) |
 
-## Local development
+## Development
 
 ```bash
 cargo run
@@ -62,16 +62,16 @@ rewrites `Cargo.lock` into path form — don't commit that; `platform`'s
 Bumping a shared crate is `platform/scripts/pin-shared-revs.sh <crate>` after
 that crate is pushed, which updates every consumer's pin at once.
 
+### Platform
+
+Kubernetes manifests live in [platform](https://github.com/sigmatactical-org/platform) under `it/platform/services/services/`. Dev ingress: `http://services.sigma.localtest.me:30080/`.
+
 ## Docker
 
 ```bash
 ./scripts/docker-build.sh
 docker build -f Dockerfile build/image -t sigma-services:local
 ```
-
-## Platform
-
-Kubernetes manifests live in [platform](https://github.com/sigmatactical-org/platform) under `it/platform/services/services/`. Dev ingress: `http://services.sigma.localtest.me:30080/`.
 
 ## Brand & artwork
 
