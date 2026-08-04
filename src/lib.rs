@@ -9,7 +9,7 @@ mod templates;
 use std::convert::Infallible;
 use std::sync::OnceLock;
 
-use sigma_theme::warp::TemplateError;
+use sigma_theme::warp::internal_rejection;
 use warp::{Filter, Rejection, Reply};
 
 fn index_page() -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
@@ -26,15 +26,8 @@ fn service_page() -> impl Filter<Extract = (impl Reply,), Error = Rejection> + C
             };
             templates::render_service_html(service)
                 .map(warp::reply::html)
-                .map_err(|_| warp::reject::custom(TemplateError))
+                .map_err(|e| internal_rejection("render service page", e))
         })
-}
-
-/// Identity BFF origin for CSP `connect-src`, resolved once per process
-/// (the theme's `security_headers` requires a `'static` borrow).
-fn identity_origin() -> &'static str {
-    static ORIGIN: OnceLock<String> = OnceLock::new();
-    ORIGIN.get_or_init(config::identity_public_origin)
 }
 
 /// Site routes: index, `/service/{slug}`, `/up`, sigma-pg health routes,
@@ -47,7 +40,7 @@ pub fn routes()
             index_page().or(service_page()),
             sigma_pg::health::warp::health_routes("services", None),
         ),
-        identity_origin(),
+        config::identity_public_origin(),
     )
 }
 
